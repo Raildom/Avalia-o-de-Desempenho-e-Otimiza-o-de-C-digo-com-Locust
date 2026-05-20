@@ -2,7 +2,7 @@
 
 Projeto acadêmico para avaliar o desempenho de uma API REST monolítica, identificar gargalos de código e medir o impacto de refatorações usando o **Locust** como ferramenta de teste de carga.
 
-## 📁 Estrutura do Projeto
+##  Estrutura do Projeto
 
 ```
 ├── app/                      # API REST (FastAPI)
@@ -28,7 +28,7 @@ Projeto acadêmico para avaliar o desempenho de uma API REST monolítica, identi
 └── README.md
 ```
 
-## 🚀 Como Reproduzir
+##  Como Reproduzir
 
 ### Pré-requisitos
 
@@ -53,9 +53,9 @@ chmod +x scripts/run_project.sh
 ```
 
 O script executa automaticamente:
-1. **Fase 1 (Baseline)** — API com gargalo, 5 repetições × 5 min × 50 usuários
-2. **Fase 2 (Otimizado)** — API refatorada, 5 repetições × 5 min × 50 usuários
-3. **Relatório** — Tabelas comparativas + 4 gráficos PNG
+1. **Fase 1 (Baseline)** - API com gargalo, 5 repetições × 5 min × 50 usuários
+2. **Fase 2 (Otimizado)** - API refatorada, 5 repetições × 5 min × 50 usuários
+3. **Relatório** - Tabelas comparativas + 4 gráficos PNG
 
 Os resultados ficam em `results/summary/`.
 
@@ -71,7 +71,7 @@ OPTIMIZED=true uvicorn app.main:app --reload
 
 Documentação interativa: http://localhost:8000/docs
 
-## 🔍 Endpoints
+##  Endpoints
 
 | Endpoint | Método | Peso | Descrição |
 |---|---|---|---|
@@ -80,7 +80,7 @@ Documentação interativa: http://localhost:8000/docs
 | `/api/status` | GET | 20% | Healthcheck leve |
 | `/api/recurso` | POST | 10% | Cadastro de novo produto |
 
-## 🐛 O Gargalo
+##  O Gargalo
 
 O endpoint `/api/recurso-lento` na versão **Baseline** possui três problemas intencionais:
 
@@ -95,7 +95,7 @@ O endpoint `/api/recurso-lento` na versão **Baseline** possui três problemas i
 3. **Regex pré-compilado**: Compilado uma vez no nível do módulo
 4. **Cache em memória**: Resultado mantido em cache por 30 segundos
 
-## 📊 Métricas Coletadas
+##  Métricas Coletadas
 
 - Tempo médio de resposta (ms)
 - Tempo máximo de resposta (ms)
@@ -103,7 +103,7 @@ O endpoint `/api/recurso-lento` na versão **Baseline** possui três problemas i
 - Total de requisições
 - Erros (4xx/5xx) e taxa de sucesso (%)
 
-## ⚙️ Configuração dos Testes
+##  Configuração dos Testes
 
 | Parâmetro | Valor |
 |---|---|

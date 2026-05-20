@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 
-# ── Categoria ────────────────────────────────────────────────
+# -- Categoria ------------------------------------------------
 
 class CategoriaOut(BaseModel):
     id: int
@@ -16,7 +16,7 @@ class CategoriaOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Produto ──────────────────────────────────────────────────
+# -- Produto --------------------------------------------------
 
 class ProdutoCreate(BaseModel):
     """Schema para criação de um novo produto via POST."""
@@ -44,7 +44,7 @@ class ProdutoDetalhe(ProdutoOut):
     categoria: CategoriaOut
 
 
-# ── Relatório (endpoint lento) ───────────────────────────────
+# -- Relatório (endpoint lento) -------------------------------
 
 class ProdutoRelatorio(BaseModel):
     """Item do relatório gerado pelo endpoint lento."""
@@ -61,7 +61,7 @@ class RelatorioOut(BaseModel):
     itens: list[ProdutoRelatorio]
 
 
-# ── Status ───────────────────────────────────────────────────
+# -- Status ---------------------------------------------------
 
 class StatusOut(BaseModel):
     status: str

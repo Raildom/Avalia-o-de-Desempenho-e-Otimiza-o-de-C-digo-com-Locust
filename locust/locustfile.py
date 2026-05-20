@@ -1,11 +1,11 @@
 """
-Locustfile — Plano de teste de carga para a API Monolítica.
+Locustfile - Plano de teste de carga para a API Monolítica.
 
 Mix de Carga (Workload Mix):
-  - GET  /api/recurso-lento         → 40% dos acessos (gargalo)
-  - GET  /api/recurso-detalhe/{id}  → 30% dos acessos (consulta indexada)
-  - GET  /api/status                → 20% dos acessos (healthcheck)
-  - POST /api/recurso               → 10% dos acessos (cadastro)
+  - GET  /api/recurso-lento         -> 40% dos acessos (gargalo)
+  - GET  /api/recurso-detalhe/{id}  -> 30% dos acessos (consulta indexada)
+  - GET  /api/status                -> 20% dos acessos (healthcheck)
+  - POST /api/recurso               -> 10% dos acessos (cadastro)
 """
 
 import random
@@ -20,14 +20,14 @@ class ApiUser(HttpUser):
 
     wait_time = between(1, 2)
 
-    # ── 40% — Endpoint com gargalo ──────────────────────────
+    # -- 40% - Endpoint com gargalo --------------------------
 
     @task(4)
     def recurso_lento(self):
         """Acessa o endpoint de relatório (gargalo de desempenho)."""
         self.client.get("/api/recurso-lento", name="/api/recurso-lento")
 
-    # ── 30% — Consulta por ID ───────────────────────────────
+    # -- 30% - Consulta por ID -------------------------------
 
     @task(3)
     def recurso_detalhe(self):
@@ -38,14 +38,14 @@ class ApiUser(HttpUser):
             name="/api/recurso-detalhe/{id}",
         )
 
-    # ── 20% — Healthcheck ──────────────────────────────────
+    # -- 20% - Healthcheck ----------------------------------
 
     @task(2)
     def status(self):
         """Verifica o status da aplicação."""
         self.client.get("/api/status", name="/api/status")
 
-    # ── 10% — Cadastro ─────────────────────────────────────
+    # -- 10% - Cadastro -------------------------------------
 
     @task(1)
     def criar_recurso(self):

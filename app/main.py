@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="API Monolítica — Trabalho 7",
+    title="API Monolítica - Trabalho 7",
     description="API REST para testes de desempenho com Locust",
     version="1.0.0",
     lifespan=lifespan,
@@ -44,7 +44,7 @@ app.include_router(create.router, tags=["Criar Recurso"])
 def root():
     """Rota raiz com informações da API."""
     return {
-        "app": "API Monolítica — Trabalho 7",
+        "app": "API Monolítica - Trabalho 7",
         "modo": "otimizado" if OPTIMIZED else "baseline",
         "endpoints": [
             "GET  /api/recurso-lento",

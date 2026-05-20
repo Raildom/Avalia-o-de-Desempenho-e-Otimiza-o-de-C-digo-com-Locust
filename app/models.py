@@ -25,7 +25,7 @@ class Categoria(Base):
 
 
 class Produto(Base):
-    """Tabela de produtos — entidade principal da API."""
+    """Tabela de produtos - entidade principal da API."""
 
     __tablename__ = "produtos"
 

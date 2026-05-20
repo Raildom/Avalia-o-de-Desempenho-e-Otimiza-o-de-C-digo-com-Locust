@@ -29,7 +29,7 @@ def get_db():
         db.close()
 
 
-# ── Dados para seed ──────────────────────────────────────────
+# -- Dados para seed ------------------------------------------
 
 CATEGORIAS = [
     ("Eletrônicos", "Dispositivos eletrônicos e gadgets"),

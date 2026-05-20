@@ -3,14 +3,14 @@ Router: GET /api/recurso-lento
 
 Este endpoint contém o GARGALO PROPOSITAL do sistema.
 
-─── VERSÃO BASELINE (OPTIMIZED=false) ───
+--- VERSÃO BASELINE (OPTIMIZED=false) ---
 Problemas intencionais:
   1. N+1 Queries: para cada produto, faz uma query separada para buscar a categoria
   2. Concatenação de strings ineficiente com += em loop
   3. Regex compilado a cada chamada (re.compile dentro do handler)
-  4. Sem cache — recalcula tudo a cada requisição
+  4. Sem cache - recalcula tudo a cada requisição
 
-─── VERSÃO OTIMIZADA (OPTIMIZED=true) ───
+--- VERSÃO OTIMIZADA (OPTIMIZED=true) ---
 Correções aplicadas:
   1. Uma única query com JOIN (eliminando N+1)
   2. Strings com list + join
@@ -35,13 +35,13 @@ router = APIRouter()
 # Variável de ambiente para alternar entre versão lenta e otimizada
 OPTIMIZED = os.environ.get("OPTIMIZED", "false").lower() == "true"
 
-# ── Regex pré-compilado para a versão otimizada ─────────────
+# -- Regex pré-compilado para a versão otimizada -------------
 _PATTERN_TAGS = re.compile(r",\s*")
 
 
-# ────────────────────────────────────────────────────────────
-#  VERSÃO BASELINE — LENTA (com gargalo proposital)
-# ────────────────────────────────────────────────────────────
+# ------------------------------------------------------------
+#  VERSÃO BASELINE - LENTA (com gargalo proposital)
+# ------------------------------------------------------------
 
 def _gerar_relatorio_lento(db: Session) -> dict:
     """
@@ -90,9 +90,9 @@ def _gerar_relatorio_lento(db: Session) -> dict:
     return {"total_produtos": len(itens), "itens": itens}
 
 
-# ────────────────────────────────────────────────────────────
-#  VERSÃO OTIMIZADA — RÁPIDA
-# ────────────────────────────────────────────────────────────
+# ------------------------------------------------------------
+#  VERSÃO OTIMIZADA - RÁPIDA
+# ------------------------------------------------------------
 
 # Cache simples com TTL
 _cache: dict = {"data": None, "timestamp": 0}
@@ -113,7 +113,7 @@ def _gerar_relatorio_otimizado(db: Session) -> dict:
     if _cache["data"] is not None and (now - _cache["timestamp"]) < _CACHE_TTL:
         return _cache["data"]
 
-    # UMA ÚNICA query com JOIN — elimina o problema N+1
+    # UMA ÚNICA query com JOIN - elimina o problema N+1
     produtos = (
         db.query(Produto)
         .options(joinedload(Produto.categoria))
@@ -156,9 +156,9 @@ def _gerar_relatorio_otimizado(db: Session) -> dict:
     return result
 
 
-# ────────────────────────────────────────────────────────────
+# ------------------------------------------------------------
 #  ENDPOINT
-# ────────────────────────────────────────────────────────────
+# ------------------------------------------------------------
 
 @router.get("/api/recurso-lento", response_model=RelatorioOut)
 def recurso_lento(db: Session = Depends(get_db)):
