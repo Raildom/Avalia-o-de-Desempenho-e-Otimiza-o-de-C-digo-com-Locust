@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+data.db
+trabalho7.txt
+*.egg-info/
+.pytest_cache/
