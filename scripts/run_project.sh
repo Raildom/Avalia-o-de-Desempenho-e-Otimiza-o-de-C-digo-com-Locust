@@ -18,7 +18,7 @@ REPORT_SCRIPT="$PROJECT_DIR/scripts/generate_report.py"
 REPETICOES=5
 USUARIOS=50
 SPAWN_RATE=10
-DURACAO="1m"
+DURACAO="5m"
 HOST="http://localhost:8000"
 PORT=8000
 
