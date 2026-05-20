@@ -18,16 +18,17 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASELINE_DIR = os.path.join(PROJECT_DIR, "results", "baseline")
 OPTIMIZED_DIR = os.path.join(PROJECT_DIR, "results", "optimized")
 SUMMARY_DIR = os.path.join(PROJECT_DIR, "results", "summary")
+WARMUP_SECONDS = int(os.environ.get("WARMUP_SECONDS", "60"))
 
 
-def carregar_stats(fase_dir: str) -> pd.DataFrame:
-    """Carrega e agrega os CSVs de stats de todas as repetições."""
+def carregar_history(fase_dir: str) -> pd.DataFrame:
+    """Carrega e agrega os CSVs de stats_history de todas as repetições."""
     all_runs = []
     for run_name in sorted(os.listdir(fase_dir)):
         run_dir = os.path.join(fase_dir, run_name)
         if not os.path.isdir(run_dir):
             continue
-        stats_file = os.path.join(run_dir, "results_stats.csv")
+        stats_file = os.path.join(run_dir, "results_stats_history.csv")
         if not os.path.exists(stats_file):
             print(f"  [AVISO] Não encontrado: {stats_file}")
             continue
@@ -42,29 +43,85 @@ def carregar_stats(fase_dir: str) -> pd.DataFrame:
     return pd.concat(all_runs, ignore_index=True)
 
 
-def calcular_metricas(df: pd.DataFrame) -> pd.DataFrame:
-    """Calcula a média das métricas entre as repetições, por endpoint."""
-    # Filtrar apenas linhas "Aggregated" (resumo geral) e por endpoint
-    metricas = df.groupby("Name").agg({
-        "Average Response Time": "mean",
-        "Max Response Time": "mean",
-        "Requests/s": "mean",
-        "Request Count": "sum",
-        "Failure Count": "sum",
+def _metricas_por_run(history_df: pd.DataFrame) -> pd.DataFrame:
+    """Calcula metricas por run, descartando o warm-up inicial."""
+    history_df = history_df.copy()
+    history_df["Timestamp"] = pd.to_numeric(history_df["Timestamp"], errors="coerce")
+    history_df["Requests/s"] = pd.to_numeric(history_df["Requests/s"], errors="coerce")
+    history_df["Total Request Count"] = pd.to_numeric(
+        history_df["Total Request Count"], errors="coerce"
+    )
+    history_df["Total Failure Count"] = pd.to_numeric(
+        history_df["Total Failure Count"], errors="coerce"
+    )
+    history_df["Total Average Response Time"] = pd.to_numeric(
+        history_df["Total Average Response Time"], errors="coerce"
+    )
+    history_df["Total Max Response Time"] = pd.to_numeric(
+        history_df["Total Max Response Time"], errors="coerce"
+    )
+    history_df["100%"] = pd.to_numeric(history_df["100%"], errors="coerce")
+
+    rows = []
+    for run_name, run_df in history_df.groupby("run"):
+        run_df = run_df.sort_values("Timestamp")
+        min_ts = run_df["Timestamp"].min()
+        max_ts = run_df["Timestamp"].max()
+        warmup_end = min_ts + WARMUP_SECONDS
+        if (max_ts - min_ts) < WARMUP_SECONDS:
+            warmup_end = min_ts
+
+        for endpoint, ep_df in run_df.groupby("Name"):
+            ep_df = ep_df.sort_values("Timestamp")
+
+            window_df = ep_df[ep_df["Timestamp"] >= warmup_end]
+            window_count = float(window_df["Total Request Count"].sum())
+            window_fail = float(window_df["Total Failure Count"].sum())
+
+            if window_count > 0:
+                weighted_sum = (window_df["Total Average Response Time"] * window_df["Total Request Count"]).sum()
+                window_avg = float(weighted_sum / window_count)
+            else:
+                window_avg = 0.0
+            window_rps = (
+                window_df["Requests/s"].mean()
+                if not window_df.empty
+                else 0.0
+            )
+            window_max = (
+                window_df["100%"].max()
+                if not window_df.empty
+                else 0.0
+            )
+
+            rows.append({
+                "run": run_name,
+                "Endpoint": endpoint,
+                "Tempo Médio (ms)": window_avg,
+                "Tempo Máximo (ms)": window_max,
+                "Req/s": window_rps,
+                "Total Requisições": window_count,
+                "Erros": window_fail,
+            })
+
+    return pd.DataFrame(rows)
+
+
+def calcular_metricas(history_df: pd.DataFrame) -> pd.DataFrame:
+    """Calcula a media das metricas entre as repeticoes, por endpoint."""
+    per_run = _metricas_por_run(history_df)
+
+    metricas = per_run.groupby("Endpoint").agg({
+        "Tempo Médio (ms)": "mean",
+        "Tempo Máximo (ms)": "mean",
+        "Req/s": "mean",
+        "Total Requisições": "sum",
+        "Erros": "sum",
     }).reset_index()
 
     metricas["Taxa Sucesso (%)"] = (
-        (1 - metricas["Failure Count"] / metricas["Request Count"].replace(0, 1)) * 100
+        (1 - metricas["Erros"] / metricas["Total Requisições"].replace(0, 1)) * 100
     ).round(2)
-
-    metricas = metricas.rename(columns={
-        "Name": "Endpoint",
-        "Average Response Time": "Tempo Médio (ms)",
-        "Max Response Time": "Tempo Máximo (ms)",
-        "Requests/s": "Req/s",
-        "Request Count": "Total Requisições",
-        "Failure Count": "Erros",
-    })
 
     return metricas
 
@@ -193,13 +250,13 @@ def main():
 
     # Carregar dados
     print("\n[1/4] Carregando dados do Baseline...")
-    df_baseline = carregar_stats(BASELINE_DIR)
+    df_baseline = carregar_history(BASELINE_DIR)
 
     print("[2/4] Carregando dados do Otimizado...")
-    df_optimized = carregar_stats(OPTIMIZED_DIR)
+    df_optimized = carregar_history(OPTIMIZED_DIR)
 
     # Calcular métricas
-    print("[3/4] Calculando métricas...")
+    print("[3/4] Calculando métricas")
     metricas_base = calcular_metricas(df_baseline)
     metricas_opt = calcular_metricas(df_optimized)
 

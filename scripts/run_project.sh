@@ -41,7 +41,7 @@ wait_for_api() {
         fi
         sleep 1
     done
-    echo "       ✗ API não respondeu em 30s"
+    echo "         API não respondeu em 30s"
     exit 1
 }
 

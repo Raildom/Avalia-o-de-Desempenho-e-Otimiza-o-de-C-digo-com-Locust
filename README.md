@@ -59,6 +59,13 @@ O script executa automaticamente:
 
 Os resultados ficam em `results/summary/`.
 
+Para ajustar o tempo de warm-up descartado no relatorio, use a variavel de ambiente
+`WARMUP_SECONDS` ao gerar o relatorio (padrao: 60s):
+
+```bash
+WARMUP_SECONDS=90 python scripts/generate_report.py
+```
+
 ### (Opcional) Testar a API manualmente
 
 ```bash
