@@ -13,8 +13,10 @@ DATABASE_URL = "sqlite:///./data.db"
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args={"check_same_thread": False, "timeout": 15},
     echo=False,
+    pool_size=100,
+    max_overflow=100,
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
