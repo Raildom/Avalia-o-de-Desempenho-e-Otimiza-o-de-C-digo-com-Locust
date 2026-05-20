@@ -4,7 +4,8 @@ Popula o banco com ~1000 produtos distribuídos em 10 categorias.
 """
 
 import random
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from app.models import Base, Categoria, Produto
@@ -13,11 +14,25 @@ DATABASE_URL = "sqlite:///./data.db"
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False, "timeout": 15},
+    connect_args={"check_same_thread": False, "timeout": 30},
     echo=False,
-    pool_size=100,
-    max_overflow=100,
+    pool_size=50,
+    max_overflow=50,
+    pool_timeout=60,
+    pool_pre_ping=True,
 )
+
+
+@event.listens_for(Engine, "connect")
+def _set_sqlite_pragmas(dbapi_connection, connection_record):
+    """Ajusta PRAGMAs para reduzir locks e melhorar concorrencia no SQLite."""
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA journal_mode=WAL;")
+        cursor.execute("PRAGMA synchronous=NORMAL;")
+        cursor.execute("PRAGMA busy_timeout=30000;")
+    finally:
+        cursor.close()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
