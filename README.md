@@ -38,7 +38,7 @@ Projeto acadêmico para avaliar o desempenho de uma API REST monolítica, identi
 ### 1. Clonar e instalar dependências
 
 ```bash
-git clone <url-do-repositorio>
+git clone <https://github.com/Raildom/Avalia-o-de-Desempenho-e-Otimiza-o-de-C-digo-com-Locust.git>
 cd Avalia-o-de-Desempenho-e-Otimiza-o-de-C-digo-com-Locust
 python -m venv venv
 source venv/bin/activate
