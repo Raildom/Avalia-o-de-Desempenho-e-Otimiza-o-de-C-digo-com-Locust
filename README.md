@@ -23,7 +23,9 @@ Projeto acadêmico para avaliar o desempenho de uma API REST monolítica, identi
 ├── results/                  # Resultados dos testes (gerado automaticamente)
 │   ├── baseline/             # CSVs da Fase 1
 │   ├── optimized/            # CSVs da Fase 2
-│   └── summary/              # Tabelas CSV + gráficos PNG
+│   └── resumo.csv            # Tabela de resumo comparativa
+├── reports/
+│   └── graphs/               # Graficos PNG
 ├── requirements.txt
 └── README.md
 ```
@@ -55,9 +57,9 @@ chmod +x scripts/run_project.sh
 O script executa automaticamente:
 1. **Fase 1 (Baseline)** - API com gargalo, 5 repetições × 5 min × 50 usuários
 2. **Fase 2 (Otimizado)** - API refatorada, 5 repetições × 5 min × 50 usuários
-3. **Relatório** - Tabelas comparativas + 4 gráficos PNG
+3. **Relatório** - Tabela comparativa em CSV + 4 gráficos PNG
 
-Os resultados ficam em `results/summary/`.
+Os CSVs ficam em `results/` e os gráficos em `reports/graphs/`.
 
 Para ajustar o tempo de warm-up descartado no relatorio, use a variavel de ambiente
 `WARMUP_SECONDS` ao gerar o relatorio (padrao: 60s):

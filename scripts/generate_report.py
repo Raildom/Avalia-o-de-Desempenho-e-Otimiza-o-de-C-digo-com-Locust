@@ -17,7 +17,8 @@ import numpy as np
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASELINE_DIR = os.path.join(PROJECT_DIR, "results", "baseline")
 OPTIMIZED_DIR = os.path.join(PROJECT_DIR, "results", "optimized")
-SUMMARY_DIR = os.path.join(PROJECT_DIR, "results", "summary")
+SUMMARY_FILE = os.path.join(PROJECT_DIR, "results", "resumo.csv")
+GRAPH_DIR = os.path.join(PROJECT_DIR, "reports", "graphs")
 WARMUP_SECONDS = int(os.environ.get("WARMUP_SECONDS", "60"))
 
 
@@ -138,7 +139,7 @@ def gerar_tabela_comparativa(baseline: pd.DataFrame, optimized: pd.DataFrame) ->
 
 def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
     """Gera gráficos comparativos com matplotlib."""
-    os.makedirs(SUMMARY_DIR, exist_ok=True)
+    os.makedirs(GRAPH_DIR, exist_ok=True)
 
     # Filtrar endpoints que existem em ambos
     endpoints = baseline[baseline["Endpoint"] != "Aggregated"]["Endpoint"].tolist()
@@ -171,7 +172,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
     ax.bar_label(bars1, fmt="%.1f", padding=3, fontsize=8)
     ax.bar_label(bars2, fmt="%.1f", padding=3, fontsize=8)
     plt.tight_layout()
-    plt.savefig(os.path.join(SUMMARY_DIR, "tempo_medio.png"), dpi=150)
+    plt.savefig(os.path.join(GRAPH_DIR, "tempo_medio.png"), dpi=150)
     plt.close()
     print("  tempo_medio.png")
 
@@ -190,7 +191,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
     ax.bar_label(bars1, fmt="%.1f", padding=3, fontsize=8)
     ax.bar_label(bars2, fmt="%.1f", padding=3, fontsize=8)
     plt.tight_layout()
-    plt.savefig(os.path.join(SUMMARY_DIR, "tempo_maximo.png"), dpi=150)
+    plt.savefig(os.path.join(GRAPH_DIR, "tempo_maximo.png"), dpi=150)
     plt.close()
     print("  tempo_maximo.png")
 
@@ -209,7 +210,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
     ax.bar_label(bars1, fmt="%.2f", padding=3, fontsize=8)
     ax.bar_label(bars2, fmt="%.2f", padding=3, fontsize=8)
     plt.tight_layout()
-    plt.savefig(os.path.join(SUMMARY_DIR, "throughput.png"), dpi=150)
+    plt.savefig(os.path.join(GRAPH_DIR, "throughput.png"), dpi=150)
     plt.close()
     print("  throughput.png")
 
@@ -236,7 +237,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
         plt.suptitle("Métricas Agregadas - Baseline vs Otimizado",
                      fontsize=14, fontweight="bold")
         plt.tight_layout()
-        plt.savefig(os.path.join(SUMMARY_DIR, "agregado.png"), dpi=150)
+        plt.savefig(os.path.join(GRAPH_DIR, "agregado.png"), dpi=150)
         plt.close()
         print("  agregado.png")
 
@@ -245,8 +246,6 @@ def main():
     print("===================================================")
     print("  GERAÇÃO DE RELATÓRIO COMPARATIVO")
     print("===================================================")
-
-    os.makedirs(SUMMARY_DIR, exist_ok=True)
 
     # Carregar dados
     print("\n[1/4] Carregando dados do Baseline...")
@@ -260,17 +259,12 @@ def main():
     metricas_base = calcular_metricas(df_baseline)
     metricas_opt = calcular_metricas(df_optimized)
 
-    # Salvar tabelas
-    metricas_base.to_csv(os.path.join(SUMMARY_DIR, "baseline_resumo.csv"), index=False)
-    metricas_opt.to_csv(os.path.join(SUMMARY_DIR, "otimizado_resumo.csv"), index=False)
-
+    # Salvar tabela de resumo
     comparativo = gerar_tabela_comparativa(metricas_base, metricas_opt)
-    comparativo.to_csv(os.path.join(SUMMARY_DIR, "comparativo.csv"), index=False)
+    comparativo.to_csv(SUMMARY_FILE, index=False)
 
-    print("\n  Tabelas salvas:")
-    print("    baseline_resumo.csv")
-    print("    otimizado_resumo.csv")
-    print("    comparativo.csv")
+    print("\n  Tabela de resumo salva:")
+    print(f"    {SUMMARY_FILE}")
 
     # Gerar gráficos
     print("\n[4/4] Gerando gráficos...")

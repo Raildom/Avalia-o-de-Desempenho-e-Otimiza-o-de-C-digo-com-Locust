@@ -14,11 +14,12 @@ BASELINE_DIR="$PROJECT_DIR/results/baseline"
 OPTIMIZED_DIR="$PROJECT_DIR/results/optimized"
 LOCUSTFILE="$PROJECT_DIR/locust/locustfile.py"
 REPORT_SCRIPT="$PROJECT_DIR/scripts/generate_report.py"
+SUMMARY_FILE="$PROJECT_DIR/results/resumo.csv"
 
 REPETICOES=5
 USUARIOS=50
 SPAWN_RATE=10
-DURACAO="5m"
+DURACAO="1m"
 HOST="http://localhost:8000"
 PORT=8000
 
@@ -52,6 +53,16 @@ kill_api() {
     if [ -n "$pid" ]; then
         kill "$pid" 2>/dev/null || true
         sleep 2
+    fi
+}
+
+# -- Função: limpar resultados extras ----------------------
+cleanup_results() {
+    local results_dir="$PROJECT_DIR/results"
+    if [ -d "$results_dir" ]; then
+        rm -rf "$results_dir/summary"
+        find "$results_dir" -type f ! -name "*.csv" -delete
+        find "$results_dir" -type d -empty -delete
     fi
 }
 
@@ -140,17 +151,15 @@ echo "======================================================"
 echo "  GERANDO RELATÓRIO COMPARATIVO"
 echo "======================================================"
 python "$REPORT_SCRIPT"
+cleanup_results
 
 echo ""
 echo "+------------------------------------------------------+"
 echo "|  TUDO CONCLUÍDO!                                     |"
 echo "|                                                      |"
-echo "|  Resultados em: results/summary/                     |"
-echo "|    - baseline_resumo.csv                             |"
-echo "|    - otimizado_resumo.csv                            |"
-echo "|    - comparativo.csv                                 |"
-echo "|    - tempo_medio.png                                 |"
-echo "|    - tempo_maximo.png                                |"
-echo "|    - throughput.png                                   |"
-echo "|    - agregado.png                                    |"
+echo "|  Resultados em: results/                             |"
+echo "|    - CSVs do Locust em baseline/ e optimized/        |"
+echo "|    - resumo.csv (tabela de resumo)                   |"
+echo "|                                                      |"
+echo "|  Graficos em: reports/graphs/                        |"
 echo "+------------------------------------------------------+"
