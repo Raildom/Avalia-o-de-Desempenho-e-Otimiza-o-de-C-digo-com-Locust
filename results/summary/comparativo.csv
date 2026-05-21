@@ -1,6 +1,0 @@
-Endpoint,Tempo Médio (ms) (Baseline),Tempo Máximo (ms) (Baseline),Req/s (Baseline),Total Requisições (Baseline),Erros (Baseline),Taxa Sucesso (%) (Baseline),Tempo Médio (ms) (Otimizado),Tempo Máximo (ms) (Otimizado),Req/s (Otimizado),Total Requisições (Otimizado),Erros (Otimizado),Taxa Sucesso (%) (Otimizado)
-/api/recurso,0.0,13114.994660200318,0.0,0.0,0.0,100.0,0.0,84.13641059960355,0.0,0.0,0.0,100.0
-/api/recurso-detalhe/{id},0.0,13881.249116000254,0.0,0.0,0.0,100.0,0.0,97.05017860032967,0.0,0.0,0.0,100.0
-/api/recurso-lento,0.0,18529.53802999764,0.0,0.0,0.0,100.0,0.0,436.3630138002918,0.0,0.0,0.0,100.0
-/api/status,0.0,13705.270647399448,0.0,0.0,0.0,100.0,0.0,85.14580660048523,0.0,0.0,0.0,100.0
-Aggregated,0.0,16453.66885819967,0.0,0.0,0.0,100.0,0.0,436.3630138002918,0.0,0.0,0.0,100.0

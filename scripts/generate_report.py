@@ -120,10 +120,6 @@ def calcular_metricas(history_df: pd.DataFrame) -> pd.DataFrame:
         "Erros": "sum",
     }).reset_index()
 
-    metricas["Taxa Sucesso (%)"] = (
-        (1 - metricas["Erros"] / metricas["Total Requisições"].replace(0, 1)) * 100
-    ).round(2)
-
     return metricas
 
 
@@ -165,7 +161,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
                    width, label="Otimizado", color="#2ecc71", alpha=0.85)
     ax.set_xlabel("Endpoint", fontsize=12)
     ax.set_ylabel("Tempo Médio (ms)", fontsize=12)
-    ax.set_title("Tempo Médio de Resposta - Baseline vs Otimizado", fontsize=14, fontweight="bold")
+    ax.set_title("Tempo Médio de Resposta", fontsize=14, fontweight="bold")
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=15, ha="right")
     ax.legend()
@@ -184,7 +180,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
                    width, label="Otimizado", color="#2ecc71", alpha=0.85)
     ax.set_xlabel("Endpoint", fontsize=12)
     ax.set_ylabel("Tempo Máximo (ms)", fontsize=12)
-    ax.set_title("Tempo Máximo de Resposta - Baseline vs Otimizado", fontsize=14, fontweight="bold")
+    ax.set_title("Tempo Máximo de Resposta", fontsize=14, fontweight="bold")
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=15, ha="right")
     ax.legend()
@@ -203,7 +199,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
                    width, label="Otimizado", color="#2ecc71", alpha=0.85)
     ax.set_xlabel("Endpoint", fontsize=12)
     ax.set_ylabel("Requisições/s", fontsize=12)
-    ax.set_title("Throughput (Req/s) - Baseline vs Otimizado", fontsize=14, fontweight="bold")
+    ax.set_title("Throughput (Req/s)", fontsize=14, fontweight="bold")
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=15, ha="right")
     ax.legend()
@@ -234,7 +230,7 @@ def gerar_graficos(baseline: pd.DataFrame, optimized: pd.DataFrame):
             axes[i].set_title(metrica, fontsize=12, fontweight="bold")
             axes[i].bar_label(bars, fmt="%.2f", padding=3)
 
-        plt.suptitle("Métricas Agregadas - Baseline vs Otimizado",
+        plt.suptitle("Métricas Agregadas",
                      fontsize=14, fontweight="bold")
         plt.tight_layout()
         plt.savefig(os.path.join(GRAPH_DIR, "agregado.png"), dpi=150)
@@ -266,10 +262,6 @@ def main():
     per_run_opt["Fase"] = "Otimizado"
 
     resumo = pd.concat([per_run_base, per_run_opt], ignore_index=True)
-    resumo["Taxa Sucesso (%)"] = (
-        (1 - resumo["Erros"] / resumo["Total Requisições"].replace(0, 1)) * 100
-    ).round(2)
-
     resumo = resumo[[
         "Fase",
         "run",
@@ -279,7 +271,6 @@ def main():
         "Req/s",
         "Total Requisições",
         "Erros",
-        "Taxa Sucesso (%)",
     ]]
 
     resumo.to_csv(SUMMARY_FILE, index=False)
@@ -299,6 +290,18 @@ def main():
     print(metricas_base.to_string(index=False))
     print("\n-- Otimizado --")
     print(metricas_opt.to_string(index=False))
+    comparativo = gerar_tabela_comparativa(metricas_base, metricas_opt)
+    diferencas = pd.DataFrame({
+        "Endpoint": comparativo["Endpoint"],
+        "Delta Tempo Medio (ms)": comparativo["Tempo Médio (ms) (Otimizado)"] - comparativo["Tempo Médio (ms) (Baseline)"],
+        "Delta Tempo Maximo (ms)": comparativo["Tempo Máximo (ms) (Otimizado)"] - comparativo["Tempo Máximo (ms) (Baseline)"],
+        "Delta Req/s": comparativo["Req/s (Otimizado)"] - comparativo["Req/s (Baseline)"],
+        "Delta Total Requisicoes": comparativo["Total Requisições (Otimizado)"] - comparativo["Total Requisições (Baseline)"],
+        "Delta Erros": comparativo["Erros (Otimizado)"] - comparativo["Erros (Baseline)"],
+    })
+
+    print("\n-- Diferenca (Otimizado - Baseline) --")
+    print(diferencas.to_string(index=False))
     print("\n  CSV detalhado em: results/resumo.csv")
     print("  Graficos em: reports/graphs/")
 

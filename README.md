@@ -110,7 +110,7 @@ O endpoint `/api/recurso-lento` na versão **Baseline** possui três problemas i
 - Tempo máximo de resposta (ms)
 - Requisições por segundo (req/s)
 - Total de requisições
-- Erros (4xx/5xx) e taxa de sucesso (%)
+- Erros (4xx/5xx)
 
 ##  Configuração dos Testes
 

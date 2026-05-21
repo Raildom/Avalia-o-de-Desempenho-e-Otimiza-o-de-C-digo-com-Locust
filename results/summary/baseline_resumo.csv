@@ -1,6 +1,0 @@
-Endpoint,Tempo Médio (ms),Tempo Máximo (ms),Req/s,Total Requisições,Erros,Taxa Sucesso (%)
-/api/recurso,0.0,13114.994660200318,0.0,0.0,0.0,100.0
-/api/recurso-detalhe/{id},0.0,13881.249116000254,0.0,0.0,0.0,100.0
-/api/recurso-lento,0.0,18529.53802999764,0.0,0.0,0.0,100.0
-/api/status,0.0,13705.270647399448,0.0,0.0,0.0,100.0
-Aggregated,0.0,16453.66885819967,0.0,0.0,0.0,100.0

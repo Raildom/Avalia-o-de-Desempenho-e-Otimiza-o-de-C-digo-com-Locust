@@ -19,7 +19,7 @@ SUMMARY_FILE="$PROJECT_DIR/results/resumo.csv"
 REPETICOES=5
 USUARIOS=50
 SPAWN_RATE=10
-DURACAO="1m"
+DURACAO="5m"
 HOST="http://localhost:8000"
 PORT=8000
 
@@ -95,6 +95,7 @@ run_phase() {
         RUN_DIR="$RESULTS/run_$RUN"
         mkdir -p "$RUN_DIR"
         echo "  --- Repetição $RUN/$REPETICOES ---"
+        start_ts=$(date +%s)
 
         locust \
             -f "$LOCUSTFILE" \
@@ -106,6 +107,10 @@ run_phase() {
             --csv "$RUN_DIR/results" \
             --csv-full-history \
             --only-summary
+
+        end_ts=$(date +%s)
+        elapsed=$((end_ts - start_ts))
+        echo "      Duracao da repeticao: ${elapsed}s"
 
         echo "      Salvo em $RUN_DIR/"
 
@@ -141,6 +146,10 @@ run_phase "baseline" "false" \
     "$BASELINE_DIR"
 
 # Fase 2
+echo ""
+echo "======================================================"
+echo "  TROCA DE FASE: BASELINE -> OTIMIZADO"
+echo "======================================================"
 run_phase "optimized" "true" \
     "FASE 2 - OTIMIZADO (Código Refatorado)" \
     "$OPTIMIZED_DIR"
