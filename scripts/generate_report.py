@@ -259,9 +259,30 @@ def main():
     metricas_base = calcular_metricas(df_baseline)
     metricas_opt = calcular_metricas(df_optimized)
 
-    # Salvar tabela de resumo
-    comparativo = gerar_tabela_comparativa(metricas_base, metricas_opt)
-    comparativo.to_csv(SUMMARY_FILE, index=False)
+    # Salvar tabela de resumo detalhada (por repeticao)
+    per_run_base = _metricas_por_run(df_baseline)
+    per_run_base["Fase"] = "Baseline"
+    per_run_opt = _metricas_por_run(df_optimized)
+    per_run_opt["Fase"] = "Otimizado"
+
+    resumo = pd.concat([per_run_base, per_run_opt], ignore_index=True)
+    resumo["Taxa Sucesso (%)"] = (
+        (1 - resumo["Erros"] / resumo["Total Requisições"].replace(0, 1)) * 100
+    ).round(2)
+
+    resumo = resumo[[
+        "Fase",
+        "run",
+        "Endpoint",
+        "Tempo Médio (ms)",
+        "Tempo Máximo (ms)",
+        "Req/s",
+        "Total Requisições",
+        "Erros",
+        "Taxa Sucesso (%)",
+    ]]
+
+    resumo.to_csv(SUMMARY_FILE, index=False)
 
     print("\n  Tabela de resumo salva:")
     print(f"    {SUMMARY_FILE}")
@@ -278,7 +299,8 @@ def main():
     print(metricas_base.to_string(index=False))
     print("\n-- Otimizado --")
     print(metricas_opt.to_string(index=False))
-    print("\n  Relatório completo em: results/summary/")
+    print("\n  CSV detalhado em: results/resumo.csv")
+    print("  Graficos em: reports/graphs/")
 
 
 if __name__ == "__main__":
